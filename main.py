@@ -10,7 +10,7 @@ def flower(x, y, commits, canvas):
         if y <= 0:
             break
 
-        if i % branch_interval == 0 and i != 0:
+        if i % branch_interval == 0 and i != 0 and len(commits) >= 7:
             ran = random.randint(-1,1)
             if ran == -1:
                 canvas[y][x] = "\\"
