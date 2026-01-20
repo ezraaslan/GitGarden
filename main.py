@@ -6,6 +6,7 @@ import os
 
 def flower(x, y, commits, canvas):
     branch_interval = max(1, len(commits) // 5)
+    leaf_interval = max(1, len(commits) // 10)
     for i, commit in enumerate(commits):
         if y <= 0:
             break
@@ -29,12 +30,19 @@ def flower(x, y, commits, canvas):
             canvas[y][x] = "|"
             if x+1 < len(canvas[0]):
                 canvas[y][x+1] = "|"
+
+        if i % leaf_interval == 0 and i != 0:
+            ran = random.randint(-1, 1)
+            if ran == -1:
+                canvas[y][x-1] = "#"
+            elif ran == 1:
+                canvas[y][x+2] = "#"
+
         y -= 1
 
         clear()
         for row in canvas:
             print("".join(row))
-        time.sleep(0.05)
 
 
 def get_git_commits():
@@ -75,3 +83,5 @@ y = HEIGHT - 1
 flower(x, y, commits, canvas)
 
 # 21 or more = tree
+
+#C:\Users\Ezra\Downloads\Lingual-Project
