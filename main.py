@@ -5,28 +5,36 @@ import os
 
 
 def flower(x, y, commits, canvas):
-    for i, commit in enumerate(commits,):
-    # grow upward one cell per commit
+    branch_interval = max(1, len(commits) // 5)
+    for i, commit in enumerate(commits):
         if y <= 0:
             break
 
-        canvas[y][x] = "|"
-        canvas[y][x+1] = "|"
+        if i % branch_interval == 0 and i != 0:
+            ran = random.randint(-1,1)
+            if ran == -1:
+                canvas[y][x] = "\\"
+                if x+1 < len(canvas[0]):
+                    canvas[y][x+1] = "\\"
+            elif ran == 1:
+                canvas[y][x] = "/"
+                if x+1 < len(canvas[0]):
+                    canvas[y][x+1] = "/"
+            else:
+                canvas[y][x] = "|"
+                if x+1 < len(canvas[0]):
+                    canvas[y][x+1] = "|"
+            x += ran
+        else:
+            canvas[y][x] = "|"
+            if x+1 < len(canvas[0]):
+                canvas[y][x+1] = "|"
         y -= 1
-
-        if i % 4 == 0:
-            x += random.randint(-1,1)
-
-        if i % random.randint(5, 8):
-            canvas[y-3][x+1] = "/"
-        elif i % random.randint(3, 6):
-            canvas[y-1][x-1] = "\\"
 
         clear()
         for row in canvas:
             print("".join(row))
         time.sleep(0.05)
-
 
 
 def get_git_commits():
@@ -48,8 +56,8 @@ def get_git_commits():
 commits = get_git_commits()
 commits.reverse()
 
-WIDTH = 60
-HEIGHT = 25
+WIDTH = 100
+HEIGHT = 100
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
@@ -61,9 +69,9 @@ y = HEIGHT - 1
 
 # 1 = seed
 
-# 2-3 = stem
+# 2-10 = stem
 
-# 4-7 = flower
+# 11-20 = flower
 flower(x, y, commits, canvas)
 
-# 8 or more = tree
+# 21 or more = tree
