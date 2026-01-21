@@ -8,7 +8,7 @@ def clear():
 
 def sprout(x, y, commits, canvas):
     total_commits = len(commits)
-    leaf_interval = max(1, total_commits // 10)
+    leaf_interval = max(1, total_commits // 4)
     ran = 0
 
     for i in range(total_commits):
@@ -48,8 +48,8 @@ def seed(x, y, canvas):
 
 def flower(x, y, commits, canvas):
     total_commits = len(commits)
-    branch_interval = max(1, total_commits // 5)
-    leaf_interval = max(1, total_commits // 10)
+    branch_interval = max(1, total_commits // 4)
+    leaf_interval = max(1, total_commits // 4)
     thickness = max(2, total_commits // 8)
 
     for i, commit in enumerate(commits):
@@ -70,8 +70,9 @@ def flower(x, y, commits, canvas):
                     canvas[y][x + t] = char
 
             if i % leaf_interval == 0 and i != 0:
-                if 0 <= x - 1 < WIDTH: canvas[y][x - 1] = "#"
-                if 0 <= x + thickness < WIDTH: canvas[y][x + thickness] = "#"
+                side = random.choice([-1, thickness])
+                if 0 <= x + side < WIDTH: 
+                    canvas[y][x + side] = "%"
         else:
             canvas[y][x] = char
             canvas[y][x + 1] = char
@@ -137,10 +138,10 @@ commits.reverse()
 # seed(WIDTH // 2, HEIGHT - 1, canvas)
 
 # sprout - 2-10
-sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+# sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # flower - 11-20
-# flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # tree - >21
 
