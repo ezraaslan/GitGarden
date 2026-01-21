@@ -8,6 +8,8 @@ def clear():
 
 
 def seed(x, y, canvas):
+    canvas[y-4][x+16] = "|%"
+    canvas[y-3][x+15] = "%|"
     canvas[y-2][x+16] = "|"
     canvas[y-1][x+13] = "_-~A~-_"
     canvas[y][x] = "-~---~-^---~/       \\-~-^-~---~--~^-~"
