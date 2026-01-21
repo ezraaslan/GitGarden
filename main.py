@@ -6,6 +6,16 @@ import math
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
+
+def seed(x, y, canvas):
+    canvas[y-2][x+16] = "|"
+    canvas[y-1][x+13] = "_-~A~-_"
+    canvas[y][x] = "-~---~-^---~/       \\-~-^-~---~--~^-~"
+    view_start = max(0, y - 10)
+    view_end = min(HEIGHT, y + 30)
+    for row in canvas[view_start:view_end]: 
+        print("".join(row))
+
 def flower(x, y, commits, canvas):
     total_commits = len(commits)
     branch_interval = max(1, total_commits // 5)
@@ -94,11 +104,12 @@ commits = get_git_commits()
 commits.reverse()
 
 # seed - 1
+seed(WIDTH // 2, HEIGHT - 1, canvas)
 
 # stem - 2-10
 
 # flower - 11-20
-flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+# flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # tree - >21
 
