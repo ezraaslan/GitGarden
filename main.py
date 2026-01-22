@@ -4,16 +4,36 @@ import os
 import math
 
 # colors
-BROWN = "\033[38;5;94m"
+BROWN = [
+    "\033[38;5;94m",  # Original Brown
+    "\033[38;5;52m",  # Dark Chocolate / Deep Brown
+    "\033[38;5;131m", # Muted Red-Brown
+    "\033[38;5;178m", # Ochre / Dark Gold
+    "\033[38;5;101m", # Olive-Brown / Khaki
+]
 GREEN = "\033[32m"
+RESET = "\033[0m"
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
 def seed(x, y, canvas):
-    canvas[y-2][x+19] = f"{GREEN}\|"
-    canvas[y-1][x+17] = f"{BROWN}_-~A~-_"
-    canvas[y][x] = "~~-^-~---~-^---~/       \\-~-^-~---~--~^-~"
+    brown = random.choice(BROWN)
+    canvas[y-2][x+19] = f"{GREEN}\\|{RESET}"
+    canvas[y-1][x+17] = f"{brown}_-~A~-_{RESET}"
+    
+    soil_text = "~~-^-~---~-^---~/       \\-~-^-~---~--~^-~"
+    
+    colored_soil = ""
+    for char in soil_text:
+        if char == " ": 
+            colored_soil += char
+        else:
+            random_shade = random.choice(BROWN)
+            colored_soil += f"{random_shade}{char}{RESET}"
+    
+    canvas[y][x] = colored_soil
+    
     view_start = max(0, y - 10)
     view_end = min(HEIGHT, y + 30)
     for row in canvas[view_start:view_end]: 
@@ -34,7 +54,7 @@ def sprout(x, y, commits, canvas):
             else:
                 canvas[y][x] = "|"
         elif i == total_commits-1:
-            canvas[y][x-2] = "@\|%>"
+            canvas[y][x-2] = "@\\|%>"
             canvas[y+1][x-3] = "@"
         else:
             canvas[y][x] = "|"
@@ -141,7 +161,7 @@ commits.reverse()
 # seed(WIDTH // 2, HEIGHT - 1, canvas)
 
 # sprout - 2-10
-sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+# sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # flower - 11-20
 # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
@@ -149,7 +169,7 @@ sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 # tree - >21
 
 # reset
-print("\033[0m")
+print(RESET)
 
 # C:\Users\Ezra\Downloads\Lingual-Project
 # C:\Users\Ezra\Downloads\Games\GitTree\GitTree
