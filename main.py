@@ -3,28 +3,41 @@ import random
 import os
 import math
 
+# colors
+BROWN = "\033[38;5;94m"
+GREEN = "\033[32m"
+
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
+def seed(x, y, canvas):
+    canvas[y-2][x+19] = f"{GREEN}\|"
+    canvas[y-1][x+17] = f"{BROWN}_-~A~-_"
+    canvas[y][x] = "~~-^-~---~-^---~/       \\-~-^-~---~--~^-~"
+    view_start = max(0, y - 10)
+    view_end = min(HEIGHT, y + 30)
+    for row in canvas[view_start:view_end]: 
+        print("".join(row))
+
 def sprout(x, y, commits, canvas):
     total_commits = len(commits)
-    leaf_interval = max(1, total_commits // 4)
-    ran = 0
 
     for i in range(total_commits):
 
-        if i != 0 and i % leaf_interval == 0:
-            ran = random.randint(-1, 1)
+        if i != 0 and i != (total_commits-1) and random.random() > .65:
+            side = random.choice(["left", "right"])
 
-        char = "|"
-        if ran == 1:
-            char = "<%|"
-            canvas[y][x-2] = char
-        elif ran == -1:
-            char = "|%>"
-            canvas[y][x] = char
+            if side == "left":
+                canvas[y][x-3] = "<%\\|"
+            elif side == "right":
+                canvas[y][x] = "|/%>"
+            else:
+                canvas[y][x] = "|"
+        elif i == total_commits-1:
+            canvas[y][x-2] = "@\|%>"
+            canvas[y+1][x-3] = "@"
         else:
-            canvas[y][x] = char
+            canvas[y][x] = "|"
 
         
         y -= 1
@@ -35,16 +48,6 @@ def sprout(x, y, commits, canvas):
         for row in canvas[view_start:view_end]: 
             print("".join(row))
 
-def seed(x, y, canvas):
-    canvas[y-4][x+16] = "|%"
-    canvas[y-3][x+15] = "%|"
-    canvas[y-2][x+16] = "|"
-    canvas[y-1][x+13] = "_-~A~-_"
-    canvas[y][x] = "-~---~-^---~/       \\-~-^-~---~--~^-~"
-    view_start = max(0, y - 10)
-    view_end = min(HEIGHT, y + 30)
-    for row in canvas[view_start:view_end]: 
-        print("".join(row))
 
 def flower(x, y, commits, canvas):
     total_commits = len(commits)
@@ -138,12 +141,15 @@ commits.reverse()
 # seed(WIDTH // 2, HEIGHT - 1, canvas)
 
 # sprout - 2-10
-# sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # flower - 11-20
-flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+# flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
 # tree - >21
+
+# reset
+print("\033[0m")
 
 # C:\Users\Ezra\Downloads\Lingual-Project
 # C:\Users\Ezra\Downloads\Games\GitTree\GitTree
