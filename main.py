@@ -2,6 +2,10 @@ import subprocess
 import random
 import os
 import math
+import msvcrt
+
+node_positions = {} 
+selected_node = 0 
 
 # colors
 BROWN = [
@@ -17,22 +21,92 @@ RESET = "\033[0m"
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
+def show_commit_info(commit):
+    clear()
+    print("Commit:", commit["hash"])
+    print("Author:", commit["author"])
+    print("Date:  ", commit["date"])
+    print()
+    print(commit["subject"])
+    if commit["body"].strip():
+        print("\n" + commit["body"])
+    input("\nPress Enter to return")
+    msvcrt.getch
+
+def get_git_commits():
+    try:
+        result = subprocess.run(
+            [
+                "git", "log",
+                "--all",
+                "--date=iso",
+                "--pretty=format:%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1e"
+            ],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        commits = []
+        for record in result.stdout.strip("\n\x1e").split("\x1e"):
+            fields = record.split("\x1f")
+            commits.append({
+                "hash": fields[0],
+                "author": fields[1],
+                "date": fields[2],
+                "subject": fields[3],
+                "body": fields[4],
+            })
+        return commits
+
+    except Exception:
+        return [{
+            "hash": "dummy",
+            "author": "you",
+            "date": "",
+            "subject": "initial commit",
+            "body": ""
+        }]
+
+def seed_interaction(commits):
+    while True:
+        key = msvcrt.getch()
+
+        if key == b'\r':  # Enter
+            show_commit_info(commits[0])
+            clear()
+            break
+
+        elif key in (b'q', b'Q'):
+            break
+
+
 def seed(x, y, canvas):
     brown = random.choice(BROWN)
-    canvas[y-2][x+19] = f"{GREEN}\\|{RESET}"
+
+    sprout_x = x + 19
+    sprout_y = y - 2
+
+    canvas[sprout_y][sprout_x] = f"{GREEN}\\|{RESET}"
     canvas[y-1][x+17] = f"{brown}_-~A~-_{RESET}"
     
     soil_text = "~~-^-~---~-^---~/       \\-~-^-~---~--~^-~"
+
+    node_positions[(sprout_x, sprout_y)] = 0
     
-    colored_soil = ""
+    soil_cells = []
     for char in soil_text:
-        if char == " ": 
-            colored_soil += char
+        if char == " ":
+            soil_cells.append(" ")
         else:
-            random_shade = random.choice(BROWN)
-            colored_soil += f"{random_shade}{char}{RESET}"
+            soil_cells.append(f"{random.choice(BROWN)}{char}{RESET}")
+
     
-    canvas[y][x] = colored_soil
+    for i, cell in enumerate(soil_cells):
+        if x + i < WIDTH:
+            canvas[y][x + i] = cell
+
+
     
     view_start = max(0, y - 10)
     view_end = min(HEIGHT, y + 30)
@@ -134,23 +208,6 @@ def flower(x, y, commits, canvas):
         print("".join(row))
 
 
-
-def get_git_commits():
-    try:
-        result = subprocess.run(
-            ["git", "log", "--all", "--pretty=format:%H\t%P\t%D"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        commits = []
-        for line in result.stdout.splitlines():
-            parts = line.split("\t")
-            commits.append({"id": parts[0]})
-        return commits
-    except Exception:
-        return [{"id": i} for i in range(25)]
-
 WIDTH = 100
 HEIGHT = 100
 canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
@@ -158,7 +215,8 @@ commits = get_git_commits()
 commits.reverse()
 
 # seed - 1
-# seed(WIDTH // 2, HEIGHT - 1, canvas)
+seed(WIDTH // 2, HEIGHT - 1, canvas)
+seed_interaction(commits)
 
 # sprout - 2-10
 # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
