@@ -68,20 +68,19 @@ def get_git_commits():
             "body": ""
         }]
 
-def seed_interaction(commits):
+def seed_interaction(x, y, commits, canvas):
     while True:
         key = msvcrt.getch()
 
-        if key == b'\r':  # Enter
+        if key == b'\r':  
             show_commit_info(commits[0])
-            clear()
+            seed(x, y, commits, canvas)
             break
 
         elif key in (b'q', b'Q'):
             break
 
-
-def seed(x, y, canvas):
+def seed(x, y, commits, canvas):
     brown = random.choice(BROWN)
 
     sprout_x = x + 19
@@ -112,6 +111,8 @@ def seed(x, y, canvas):
     view_end = min(HEIGHT, y + 30)
     for row in canvas[view_start:view_end]: 
         print("".join(row))
+    
+    seed_interaction(x, y, commits, canvas)
 
 def sprout(x, y, commits, canvas):
     total_commits = len(commits)
@@ -215,8 +216,7 @@ commits = get_git_commits()
 commits.reverse()
 
 # seed - 1
-seed(WIDTH // 2, HEIGHT - 1, canvas)
-seed_interaction(commits)
+seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
 # sprout - 2-10
 # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
