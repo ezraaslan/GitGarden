@@ -72,7 +72,10 @@ def seed_interaction(x, y, commits, canvas):
     while True:
         key = msvcrt.getch()
 
-        if key == b'\r':  
+        if key == b'\x03':
+            raise KeyboardInterrupt
+        
+        elif key == b'\r':  
             show_commit_info(commits[0])
             seed(x, y, commits, canvas)
             break
@@ -209,25 +212,31 @@ def flower(x, y, commits, canvas):
         print("".join(row))
 
 
-WIDTH = 100
-HEIGHT = 100
-canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
-commits = get_git_commits()
-commits.reverse()
+if __name__ == "__main__":
 
-# seed - 1
-seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+    WIDTH = 100
+    HEIGHT = 100
+    canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
+    commits = get_git_commits()
+    commits.reverse()
 
-# sprout - 2-10
-# sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+    try:
+        # seed - 1
+        seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
-# flower - 11-20
-# flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # sprout - 2-10
+        # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
-# tree - >21
+        # flower - 11-20
+        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
-# reset
-print(RESET)
+        # tree - >21
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # reset
+        print(RESET)
+        clear()
 
 # C:\Users\Ezra\Downloads\Lingual-Project
 # C:\Users\Ezra\Downloads\Games\GitTree\GitTree
