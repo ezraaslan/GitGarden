@@ -8,14 +8,22 @@ node_positions = {}
 selected_node = 0 
 
 # colors
-BROWN = [
+SEED_BROWNS = [
     "\033[38;5;94m",  # Original Brown
     "\033[38;5;52m",  # Dark Chocolate / Deep Brown
     "\033[38;5;131m", # Muted Red-Brown
     "\033[38;5;178m", # Ochre / Dark Gold
     "\033[38;5;101m", # Olive-Brown / Khaki
 ]
+
+BROWN = "\033[38;5;94m"
+
 GREEN = "\033[32m"
+
+PINK = "\033[38;5;211m"
+
+YELLOW = "\033[38;5;184m"
+
 RESET = "\033[0m"
 
 def clear():
@@ -84,7 +92,7 @@ def seed_interaction(x, y, commits, canvas):
             break
 
 def seed(x, y, commits, canvas):
-    brown = random.choice(BROWN)
+    brown = random.choice(SEED_BROWNS)
 
     sprout_x = x + 19
     sprout_y = y - 2
@@ -101,7 +109,7 @@ def seed(x, y, commits, canvas):
         if char == " ":
             soil_cells.append(" ")
         else:
-            soil_cells.append(f"{random.choice(BROWN)}{char}{RESET}")
+            soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
 
     
     for i, cell in enumerate(soil_cells):
@@ -126,16 +134,16 @@ def sprout(x, y, commits, canvas):
             side = random.choice(["left", "right"])
 
             if side == "left":
-                canvas[y][x-3] = "<%\\|"
+                canvas[y][x-3] = f"{GREEN}<%\\{BROWN}|"
             elif side == "right":
-                canvas[y][x] = "|/%>"
+                canvas[y][x] = f"{BROWN}|{GREEN}/%>"
             else:
-                canvas[y][x] = "|"
+                canvas[y][x] = "\033[38;5;94m|"
         elif i == total_commits-1:
-            canvas[y][x-2] = "@\\|%>"
-            canvas[y+1][x-3] = "@"
+            canvas[y][x-2] = f"{GREEN}@\\|%>"
+            canvas[y+1][x-3] = f"{GREEN}@"
         else:
-            canvas[y][x] = "|"
+            canvas[y][x] = f"{BROWN}|"
 
         
         y -= 1
@@ -161,9 +169,9 @@ def flower(x, y, commits, canvas):
         if i % branch_interval == 0 and i != 0 and total_commits >= 10:
             ran = random.randint(-1, 1)
 
-        char = "|"
-        if ran == -1: char = "\\"
-        elif ran == 1: char = "/"
+        char = f"{GREEN}|"
+        if ran == -1: char = f"{GREEN}\\"
+        elif ran == 1: char = f"{GREEN}/"
 
         if total_commits > 10:
             for t in range(thickness):
@@ -173,7 +181,7 @@ def flower(x, y, commits, canvas):
             if i % leaf_interval == 0 and i != 0:
                 side = random.choice([-1, thickness])
                 if 0 <= x + side < WIDTH: 
-                    canvas[y][x + side] = "%"
+                    canvas[y][x + side] = "\033[38;5;22m%"
         else:
             canvas[y][x] = char
             canvas[y][x + 1] = char
@@ -197,9 +205,9 @@ def flower(x, y, commits, canvas):
                 draw_x = center_x + j
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
                     if (j / (radius * 2))**2 + (i / radius)**2 > 0.8:
-                        canvas[draw_y][draw_x] = "#" 
+                        canvas[draw_y][draw_x] = f"{PINK}#" 
                     else:
-                        canvas[draw_y][draw_x] = "+"
+                        canvas[draw_y][draw_x] = f"{YELLOW}+"
 
     clear()
     first_row = 0
@@ -222,13 +230,13 @@ if __name__ == "__main__":
 
     try:
         # seed - 1
-        seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+        # seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
         # sprout - 2-10
         # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
         # flower - 11-20
-        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
         # tree - >21
     except KeyboardInterrupt:
@@ -236,7 +244,6 @@ if __name__ == "__main__":
     finally:
         # reset
         print(RESET)
-        clear()
 
 # C:\Users\Ezra\Downloads\Lingual-Project
 # C:\Users\Ezra\Downloads\Games\GitTree\GitTree
