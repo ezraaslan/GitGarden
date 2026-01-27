@@ -10,10 +10,19 @@ selected_node = 0
 # colors
 SEED_BROWNS = [
     "\033[38;5;94m",  # Original Brown
-    "\033[38;5;52m",  # Dark Chocolate / Deep Brown
+    "\033[38;5;52m",  # Deep Brown
     "\033[38;5;131m", # Muted Red-Brown
-    "\033[38;5;178m", # Ochre / Dark Gold
-    "\033[38;5;101m", # Olive-Brown / Khaki
+    "\033[38;5;178m", # Ochre 
+    "\033[38;5;101m", # Khaki
+]
+
+TREE_GREENS = [
+    "\033[38;5;22m", # Dark Green
+    "\033[38;5;28m", # Normal
+    "\033[38;5;58m" # Olive Green
+    "\033[38;5;29m" # Teal Green
+    "\033[38;5;64m" # Mossy Green
+    "\033[38;5;22m"
 ]
 
 BROWN = "\033[38;5;94m"
@@ -209,19 +218,44 @@ def flower(x, y, commits, canvas):
                     else:
                         canvas[draw_y][draw_x] = f"{YELLOW}+"
 
-    clear()
-    first_row = 0
-    for idx, row in enumerate(canvas):
-        if "".join(row).strip():
-            first_row = idx
-            break
-            
-    for row in canvas[first_row:]:
-        print("".join(row))
 
+def tree(x, y, commits, canvas):
+    total_commits = len(commits)
+    thickness = max(2, total_commits // 4)
+    for i, commit in enumerate(commits):
+        canvas[y][x] = f"{BROWN}|"
+        canvas[y][x + thickness] = f"{BROWN}|"
+
+        y -= 1
+        
+        clear()
+        view_start = max(0, y - 10)
+        view_end = min(HEIGHT, y + 30)
+        for row in canvas[view_start:view_end]: 
+            print("".join(row))
+
+        for idx, row in enumerate(canvas):
+            if "".join(row).strip():
+                first_row = idx
+                break
+        
+    center_x = x + (thickness // 2)
+    radius = max(2, min(total_commits // 4, 8))
+    
+    first_row = 0
+    for i in range(-radius, radius + 1):
+        for j in range(-radius * 2, (radius * 2) + 1):
+            if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
+                draw_y = y + i
+                draw_x = center_x + j
+                if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
+                    canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}@"
+
+    for row in canvas[view_start:view_end]: 
+        print("".join(row))
+        
 
 if __name__ == "__main__":
-
     WIDTH = 100
     HEIGHT = 100
     canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
@@ -236,9 +270,11 @@ if __name__ == "__main__":
         # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
         # flower - 11-20
-        flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
         # tree - >21
+        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+
     except KeyboardInterrupt:
         pass
     finally:
