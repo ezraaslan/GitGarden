@@ -7,6 +7,9 @@ import msvcrt
 node_positions = {} 
 selected_node = 0 
 
+nodes = list(node_positions.items())
+nodes.sort(key=lambda n: n[1]) 
+
 # colors
 SEED_BROWNS = [
     "\033[38;5;94m",  # Original Brown
@@ -39,6 +42,46 @@ RESET = "\033[0m"
 
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
+
+def navigate(commits, canvas):
+    global selected_node
+    nodes = list(node_positions.items())
+    nodes.sort(key=lambda n: n[1])
+
+    while True:
+        clear()
+        
+        (x, y), idx = nodes[selected_node]
+
+        window_height = 30 
+        view_start = max(0, y - (window_height // 2))
+        view_end = min(HEIGHT, view_start + window_height)
+        
+        if view_end == HEIGHT:
+            view_start = max(0, HEIGHT - window_height)
+
+        for row_idx in range(view_start, view_end):
+            print("".join(canvas[row_idx]))
+
+        relative_y = (y - view_start) + 1
+        print(f"\033[{relative_y};{x+1}H{RED}◉{RESET}")
+
+        print(f"\033[{window_height + 2};1H{YELLOW}Node: {selected_node + 1}/{len(nodes)} | "
+              f"Commit: {commits[idx]['hash'][:7]} | (W/S or Arrows to move, Enter for info, Q to quit){RESET}")
+
+        key = msvcrt.getch()
+        if key in (b'\x00', b'\xe0'):
+            key = msvcrt.getch()
+            if key == b'H': # up
+                selected_node = min(len(nodes) - 1, selected_node + 1)
+            elif key == b'P': # down
+                selected_node = max(0, selected_node - 1)
+        
+        elif key == b'w': selected_node = min(len(nodes) - 1, selected_node + 1)
+        elif key == b's': selected_node = max(0, selected_node - 1)
+        elif key == b'\r': show_commit_info(commits[idx])
+        elif key in (b'q', b'Q'): break
+
 
 def show_commit_info(commit):
     clear()
@@ -155,6 +198,7 @@ def sprout(x, y, commits, canvas):
             canvas[y+1][x-3] = f"{GREEN}@"
         else:
             canvas[y][x] = f"{BROWN}|"
+            node_positions[(x, y)] = i
 
         
         y -= 1
@@ -195,6 +239,7 @@ def flower(x, y, commits, canvas):
                     canvas[y][x + side] = "\033[38;5;22m%"
         else:
             canvas[y][x] = char
+            node_positions[(x, y)] = i
             canvas[y][x + 1] = char
 
         x += ran
@@ -231,6 +276,9 @@ def tree(x, y, commits, canvas):
         else:
             canvas[y][x] = f"{BROWN}|"
             canvas[y][x + thickness] = f"{BROWN}|"
+            
+            center_x = x + (thickness // 2)
+            node_positions[(center_x, y)] = i 
 
         y -= 1
         
@@ -284,6 +332,7 @@ if __name__ == "__main__":
 
         # tree - >21
         tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
