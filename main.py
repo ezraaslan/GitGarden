@@ -33,6 +33,8 @@ PINK = "\033[38;5;211m"
 
 YELLOW = "\033[38;5;184m"
 
+RED = "\033[38;5;196m"
+
 RESET = "\033[0m"
 
 def clear():
@@ -223,8 +225,12 @@ def tree(x, y, commits, canvas):
     total_commits = len(commits)
     thickness = max(2, total_commits // 4)
     for i, commit in enumerate(commits):
-        canvas[y][x] = f"{BROWN}|"
-        canvas[y][x + thickness] = f"{BROWN}|"
+        if i == 0:
+            canvas[y][x-1] = f"{BROWN}/"
+            canvas[y][x + thickness + 1] = f"{BROWN}\\"
+        else:
+            canvas[y][x] = f"{BROWN}|"
+            canvas[y][x + thickness] = f"{BROWN}|"
 
         y -= 1
         
@@ -249,7 +255,11 @@ def tree(x, y, commits, canvas):
                 draw_y = y + i
                 draw_x = center_x + j
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
-                    canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}@"
+                    number = random.random()
+                    if number < .98:
+                        canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(["@", "#", "&", "%"])}"
+                    else:
+                        canvas[draw_y][draw_x] = f"{RED}0"
 
     for row in canvas[view_start:view_end]: 
         print("".join(row))
@@ -278,8 +288,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pass
     finally:
-        # reset
-        print(RESET)
+        print(RESET) # reset
 
 # C:\Users\Ezra\Downloads\Lingual-Project
 # C:\Users\Ezra\Downloads\Games\GitTree\GitTree
