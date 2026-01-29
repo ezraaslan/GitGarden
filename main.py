@@ -99,7 +99,7 @@ def get_git_commits():
                 "git", "log",
                 "--all",
                 "--date=iso",
-                "--pretty=format:%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1e"
+                "--pretty=format:%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1f%P%x1e"
             ],
             capture_output=True,
             text=True,
@@ -124,7 +124,8 @@ def get_git_commits():
             "author": "you",
             "date": "",
             "subject": "initial commit",
-            "body": ""
+            "body": "",
+            "parents": []
         }]
 
 def seed_interaction(x, y, commits, canvas):
