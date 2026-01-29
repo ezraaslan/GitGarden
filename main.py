@@ -38,6 +38,8 @@ YELLOW = "\033[38;5;184m"
 
 RED = "\033[38;5;196m"
 
+ORANGE = "\033[38;5;208m"
+
 RESET = "\033[0m"
 
 def clear():
@@ -45,43 +47,42 @@ def clear():
 
 def navigate(commits, canvas):
     global selected_node
+    # Sort nodes so index 0 is the bottom (highest Y) and index N is the top (lowest Y)
     nodes = list(node_positions.items())
-    nodes.sort(key=lambda n: n[1])
+    nodes.sort(key=lambda n: n[0][1], reverse=True) 
 
     while True:
         clear()
-        
+        print("\033[H", end="")
         (x, y), idx = nodes[selected_node]
 
+        # Determine which part of the 100-line canvas to show
         window_height = 30 
         view_start = max(0, y - (window_height // 2))
         view_end = min(HEIGHT, view_start + window_height)
-        
-        if view_end == HEIGHT:
-            view_start = max(0, HEIGHT - window_height)
 
+        # Print the visible rows
         for row_idx in range(view_start, view_end):
-            print("".join(canvas[row_idx]))
+            line = "".join(canvas[row_idx])
+            # If this is the row containing our selected node, overlay the cursor
+            if row_idx == y:
+                # Simple string replacement for the cursor
+                line = line[:x+10] + f"{RESET}◉{RESET}"
+            print(line)
 
-        relative_y = (y - view_start) + 1
-        print(f"\033[{relative_y};{x+4}H{RED}◉{RESET}")
-
-        print(f"\033[{window_height + 2};1H{YELLOW}Node: {selected_node + 1}/{len(nodes)} | "
-              f"Commit: {commits[idx]['hash'][:7]} | (W/S or Arrows to move, Enter for info, Q to quit){RESET}")
+        print(f"\n{YELLOW}Node: {selected_node + 1}/{len(nodes)} | "
+              f"Commit: {commits[idx]['hash'][:7]} | {commits[idx]['subject']}{RESET}")
+        print("(W/S or Arrows to move, Enter for info, Q to quit)")
 
         key = msvcrt.getch()
-        if key in (b'\x00', b'\xe0'):
+        if key in (b'\x00', b'\xe0'): # Arrow keys
             key = msvcrt.getch()
-            if key == b'H': # up
-                selected_node = min(len(nodes) - 1, selected_node + 1)
-            elif key == b'P': # down
-                selected_node = max(0, selected_node - 1)
-        
+            if key == b'H': selected_node = min(len(nodes) - 1, selected_node + 1) # Up
+            elif key == b'P': selected_node = max(0, selected_node - 1) # Down
         elif key == b'w': selected_node = min(len(nodes) - 1, selected_node + 1)
         elif key == b's': selected_node = max(0, selected_node - 1)
         elif key == b'\r': show_commit_info(commits[idx])
-        elif key in (b'q', b'Q'): 
-            raise KeyboardInterrupt
+        elif key in (b'q', b'Q'): break
 
 
 def show_commit_info(commit):
@@ -261,7 +262,7 @@ def flower(x, y, commits, canvas):
     for i in range(-radius, radius + 1):
         for j in range(-radius * 2, (radius * 2) + 1):
             if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
-                draw_y = y + i
+                draw_y = y + i - 3
                 draw_x = center_x + j
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
                     if (j / (radius * 2))**2 + (i / radius)**2 > 0.8:
@@ -304,14 +305,14 @@ def tree(x, y, commits, canvas):
     for i in range(-radius, radius + 1):
         for j in range(-radius * 2, (radius * 2) + 1):
             if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
-                draw_y = y + i
+                draw_y = y + i - 6
                 draw_x = center_x + j
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
                     number = random.random()
                     if number < .98:
                         canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(["@", "#", "&", "%"])}"
                     else:
-                        canvas[draw_y][draw_x] = f"{RED}0"
+                        canvas[draw_y][draw_x] = f"{random.choice([RED, ORANGE])}0"
 
     for row in canvas[view_start:view_end]: 
         print("".join(row))
@@ -333,12 +334,12 @@ if __name__ == "__main__":
         # navigate(commits, canvas)
 
         # flower - 11-20
-        flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        navigate(commits, canvas)
+        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # navigate(commits, canvas)
 
         # tree - >21
-        # tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        # navigate(commits, canvas)
+        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
