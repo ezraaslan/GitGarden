@@ -1,2 +1,68 @@
-# GitTree
-Visualize your Github graphs as ASCII flowers and trees in the terminal
+# GitGarden
+
+GitGarden turns your Git commit history into a growing piece of terminal art.  
+Every repository starts as a seed and evolves over time — sprouting, flowering, and eventually becoming a tree as your project gains commits.
+
+The goal is simple: make progress visible in a way that feels alive.
+
+---
+
+## How It Works
+
+GitGarden reads your repository’s commit log and draws a plant directly in your terminal:
+
+- **1 commit** → Seed  
+- **2–10 commits** → Sprout  
+- **11–20 commits** → Flower  
+- **21+ commits** → Tree  
+
+Each node represents a commit, and you can move through them to inspect details like the hash, author, date, and message.
+
+---
+
+## Features
+
+- Terminal-based visualization of Git history  
+- Interactive navigation between commits  
+- Procedurally generated plants (no two look the same)  
+- Colorized ANSI output  
+- Automatically scales with repository size  
+
+---
+
+## Roadmap
+
+- Cross-platform keyboard input (remove Windows-only dependency)
+- Branch visualization
+- Animated growth mode
+- Save plant snapshots as images
+- Custom themes
+
+---
+
+## Contributing
+
+Feel free to open issues for ideas, bugs, or improvements.
+Pull requests are welcome.
+
+---
+
+## Requirements
+
+- Python 3.x  
+- Git installed and available in your system PATH  
+- A terminal that supports ANSI colors  
+
+**Note:**  
+This project currently uses `msvcrt`, so it is designed for Windows terminals.
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/gitgarden.git
+cd gitgarden
+python main.py
