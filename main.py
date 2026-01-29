@@ -64,7 +64,7 @@ def navigate(commits, canvas):
             print("".join(canvas[row_idx]))
 
         relative_y = (y - view_start) + 1
-        print(f"\033[{relative_y};{x+1}H{RED}◉{RESET}")
+        print(f"\033[{relative_y};{x+4}H{RED}◉{RESET}")
 
         print(f"\033[{window_height + 2};1H{YELLOW}Node: {selected_node + 1}/{len(nodes)} | "
               f"Commit: {commits[idx]['hash'][:7]} | (W/S or Arrows to move, Enter for info, Q to quit){RESET}")
@@ -80,7 +80,8 @@ def navigate(commits, canvas):
         elif key == b'w': selected_node = min(len(nodes) - 1, selected_node + 1)
         elif key == b's': selected_node = max(0, selected_node - 1)
         elif key == b'\r': show_commit_info(commits[idx])
-        elif key in (b'q', b'Q'): break
+        elif key in (b'q', b'Q'): 
+            raise KeyboardInterrupt
 
 
 def show_commit_info(commit):
@@ -183,6 +184,7 @@ def sprout(x, y, commits, canvas):
     total_commits = len(commits)
 
     for i in range(total_commits):
+        node_positions[(x, y)] = i
 
         if i != 0 and i != (total_commits-1) and random.random() > .65:
             side = random.choice(["left", "right"])
@@ -219,6 +221,8 @@ def flower(x, y, commits, canvas):
     for i, commit in enumerate(commits):
         if y <= 15:
             break
+
+        node_positions[(x, y)] = i
 
         ran = 0
         if i % branch_interval == 0 and i != 0 and total_commits >= 10:
@@ -326,13 +330,15 @@ if __name__ == "__main__":
 
         # sprout - 2-10
         # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # navigate(commits, canvas)
 
         # flower - 11-20
-        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        navigate(commits, canvas)
 
         # tree - >21
-        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        navigate(commits, canvas)
+        # tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
