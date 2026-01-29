@@ -47,7 +47,6 @@ def clear():
 
 def navigate(commits, canvas):
     global selected_node
-    # Sort nodes so index 0 is the bottom (highest Y) and index N is the top (lowest Y)
     nodes = list(node_positions.items())
     nodes.sort(key=lambda n: n[0][1], reverse=True) 
 
@@ -56,17 +55,13 @@ def navigate(commits, canvas):
         print("\033[H", end="")
         (x, y), idx = nodes[selected_node]
 
-        # Determine which part of the 100-line canvas to show
         window_height = 30 
         view_start = max(0, y - (window_height // 2))
         view_end = min(HEIGHT, view_start + window_height)
 
-        # Print the visible rows
         for row_idx in range(view_start, view_end):
             line = "".join(canvas[row_idx])
-            # If this is the row containing our selected node, overlay the cursor
             if row_idx == y:
-                # Simple string replacement for the cursor
                 line = line[:x+10] + f"{RESET}◉{RESET}"
             print(line)
 
@@ -75,10 +70,10 @@ def navigate(commits, canvas):
         print("(W/S or Arrows to move, Enter for info, Q to quit)")
 
         key = msvcrt.getch()
-        if key in (b'\x00', b'\xe0'): # Arrow keys
+        if key in (b'\x00', b'\xe0'):
             key = msvcrt.getch()
-            if key == b'H': selected_node = min(len(nodes) - 1, selected_node + 1) # Up
-            elif key == b'P': selected_node = max(0, selected_node - 1) # Down
+            if key == b'H': selected_node = min(len(nodes) - 1, selected_node + 1) # up
+            elif key == b'P': selected_node = max(0, selected_node - 1) # down
         elif key == b'w': selected_node = min(len(nodes) - 1, selected_node + 1)
         elif key == b's': selected_node = max(0, selected_node - 1)
         elif key == b'\r': show_commit_info(commits[idx])
@@ -324,27 +319,29 @@ if __name__ == "__main__":
     canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
     commits = get_git_commits()
     commits.reverse()
+    length = len(commits)
 
     try:
         # seed - 1
-        # seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+        if length == 1:
+            seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
         # sprout - 2-10
-        # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        # navigate(commits, canvas)
+        elif length >= 2 and length <= 10:
+            sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            navigate(commits, canvas)
 
         # flower - 11-20
-        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        # navigate(commits, canvas)
+        elif length >= 11 and length <= 20:
+            flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            navigate(commits, canvas)
 
         # tree - >21
-        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        navigate(commits, canvas)
+        else:
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
     finally:
         print(RESET) # reset
-
-# C:\Users\Ezra\Downloads\Lingual-Project
-# C:\Users\Ezra\Downloads\Games\GitTree\GitTree
