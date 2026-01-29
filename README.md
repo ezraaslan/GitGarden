@@ -1,5 +1,7 @@
 # GitGarden
 
+![GitGarden demo](Screenshot 2026-01-29 183359.png)
+
 GitGarden turns your Git commit history into a growing piece of terminal art.  
 Every repository starts as a seed and evolves over time — sprouting, flowering, and eventually becoming a tree as your project gains commits.
 
@@ -34,7 +36,6 @@ Each node represents a commit, and you can move through them to inspect details 
 
 - Cross-platform keyboard input (remove Windows-only dependency)
 - Branch visualization
-- Animated growth mode
 - Save plant snapshots as images
 - Custom themes
 
