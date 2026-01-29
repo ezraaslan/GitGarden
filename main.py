@@ -274,8 +274,17 @@ def tree(x, y, commits, canvas):
             canvas[y][x-1] = f"{BROWN}/"
             canvas[y][x + thickness + 1] = f"{BROWN}\\"
         else:
-            canvas[y][x] = f"{BROWN}|"
-            canvas[y][x + thickness] = f"{BROWN}|"
+            num = random.random()
+            if num < .3:
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x + thickness] = f"{BROWN}|"
+            elif num > .3 and num < .6:
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x + thickness] = f"{BROWN}|/"
+            else:
+                canvas[y][x-1] = f"{BROWN}\\|"
+                canvas[y][x + thickness - 1] = f"{BROWN}|"
+
             
             center_x = x + (thickness // 2)
             node_positions[(center_x, y)] = i 
