@@ -60,10 +60,16 @@ def navigate(commits, canvas):
         view_end = min(HEIGHT, view_start + window_height)
 
         for row_idx in range(view_start, view_end):
-            line = "".join(canvas[row_idx])
             if row_idx == y:
-                line = line[:x+10] + f"{RESET}◉{RESET}"
-            print(line)
+                formatted_line = ""
+                for col_idx, char in enumerate(canvas[row_idx]):
+                    if col_idx == x:
+                        formatted_line += f"{RESET}◉{RESET}"
+                    else:
+                        formatted_line += char
+                print(formatted_line)
+            else:
+                print("".join(canvas[row_idx]))
 
         print(f"\n{YELLOW}Node: {selected_node + 1}/{len(nodes)} | "
               f"Commit: {commits[idx]['hash'][:7]} | {commits[idx]['subject']}{RESET}")
@@ -178,6 +184,30 @@ def seed(x, y, commits, canvas):
     seed_interaction(x, y, commits, canvas)
 
 def sprout(x, y, commits, canvas):
+
+    brown = random.choice(SEED_BROWNS)
+
+    sprout_x = x + 19
+    sprout_y = y - 2
+
+    canvas[y-1][x+5] = f"{brown}__A__{RESET}"
+    anthill_text = "---~/``@``\\-~^-"
+
+    node_positions[(sprout_x, sprout_y)] = 0
+    
+    soil_cells = []
+    for char in anthill_text:
+        if char == " ":
+            soil_cells.append(" ")
+        else:
+            soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
+
+    
+    for i, cell in enumerate(soil_cells):
+        if x + i < WIDTH:
+            canvas[y][x + i] = cell
+
+
     total_commits = len(commits)
 
     for i in range(total_commits):
@@ -214,6 +244,29 @@ def flower(x, y, commits, canvas):
     branch_interval = max(1, total_commits // 4)
     leaf_interval = max(1, total_commits // 4)
     thickness = max(2, total_commits // 8)
+
+
+    brown = random.choice(SEED_BROWNS)
+
+    sprout_x = x + 19
+    sprout_y = y - 2
+
+    canvas[y-1][x+thickness+5] = f"{brown}__A__{RESET}"
+    anthill_text = "---~/``@``\\-~^-"
+
+    node_positions[(sprout_x, sprout_y)] = 0
+    
+    soil_cells = []
+    for char in anthill_text:
+        if char == " ":
+            soil_cells.append(" ")
+        else:
+            soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
+
+    
+    for i, cell in enumerate(soil_cells):
+        if x + i < WIDTH:
+            canvas[y][x + i+thickness] = cell
 
     for i, commit in enumerate(commits):
         if y <= 15:
@@ -270,6 +323,30 @@ def flower(x, y, commits, canvas):
 def tree(x, y, commits, canvas):
     total_commits = len(commits)
     thickness = max(2, total_commits // 4)
+
+    brown = random.choice(SEED_BROWNS)
+
+    sprout_x = x + 19
+    sprout_y = y - 2
+
+    canvas[y-1][x+thickness+4] = f"{brown}__A__{RESET}"
+    anthill_text = "---~/``@``\\-~^-"
+
+    node_positions[(sprout_x, sprout_y)] = 0
+    
+    soil_cells = []
+    for char in anthill_text:
+        if char == " ":
+            soil_cells.append(" ")
+        else:
+            soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
+
+    
+    for i, cell in enumerate(soil_cells):
+        if x + i < WIDTH:
+            canvas[y][x + i+thickness] = cell
+
+
     for i, commit in enumerate(commits):
         if i == 0:
             canvas[y][x-1] = f"{BROWN}/"
@@ -332,24 +409,24 @@ if __name__ == "__main__":
     length = len(commits)
 
     try:
-        # seed - 1
-        if length == 1:
-            seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+        # # seed - 1
+        # if length == 1:
+        #     seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
-        # sprout - 2-10
-        elif length >= 2 and length <= 10:
-            sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
-            navigate(commits, canvas)
+        # # sprout - 2-10
+        # elif length >= 2 and length <= 10:
+        # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # navigate(commits, canvas)
 
-        # flower - 11-20
-        elif length >= 11 and length <= 20:
-            flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
-            navigate(commits, canvas)
+        # # flower - 11-20
+        # elif length >= 11 and length <= 20:
+        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # navigate(commits, canvas)
 
-        # tree - >21
-        else:
-            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
-            navigate(commits, canvas)
+        # # tree - >21
+        # else:
+        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
