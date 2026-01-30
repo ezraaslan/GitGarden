@@ -34,6 +34,8 @@ GREEN = "\033[32m"
 
 PINK = "\033[38;5;211m"
 
+PURPLE = "\033[1;35m"
+
 YELLOW = "\033[38;5;184m"
 
 RED = "\033[38;5;196m"
@@ -362,6 +364,7 @@ def tree(x, y, commits, canvas):
             else:
                 canvas[y][x-1] = f"{BROWN}\\|"
                 canvas[y][x + thickness - 1] = f"{BROWN}|"
+                canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
 
             
             center_x = x + (thickness // 2)
