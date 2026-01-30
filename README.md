@@ -9,6 +9,7 @@ The goal is simple: make progress visible in a way that feels alive.
 
 ---
 
+
 ## How It Works
 
 GitGarden reads your repository’s commit log and draws a plant directly in your terminal:
@@ -32,6 +33,8 @@ Each node represents a commit, and you can move through them to inspect details 
 
 ---
 
+<img src="tree-gif.gif" align="right" width="450px">
+
 ## Roadmap
 
 - Cross-platform keyboard input (remove Windows-only dependency)
@@ -44,7 +47,7 @@ Each node represents a commit, and you can move through them to inspect details 
 ## Contributing
 
 Feel free to open issues for ideas, bugs, or improvements.
-Pull requests are welcome.
+Pull requests are welcome. Any additions, especially on the ASCII art, are encouraged. :)
 
 ---
 
