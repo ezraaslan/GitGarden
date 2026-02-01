@@ -10,6 +10,8 @@ selected_node = 0
 nodes = list(node_positions.items())
 nodes.sort(key=lambda n: n[1]) 
 
+
+
 # colors
 SEED_BROWNS = [
     "\033[38;5;94m",  # Original Brown
@@ -22,10 +24,10 @@ SEED_BROWNS = [
 TREE_GREENS = [
     "\033[38;5;22m", # Dark Green
     "\033[38;5;28m", # Normal
-    "\033[38;5;58m" # Olive Green
-    "\033[38;5;29m" # Teal Green
-    "\033[38;5;64m" # Mossy Green
-    "\033[38;5;22m"
+    "\033[38;5;58m", # Olive Green
+    "\033[38;5;29m", # Teal Green
+    "\033[38;5;64m", # Mossy Green
+    "\033[38;5;22m", #Lighter 
 ]
 
 BROWN = "\033[38;5;94m"
@@ -47,10 +49,25 @@ RESET = "\033[0m"
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
+def count():
+    try:
+        result = subprocess.run(
+            ["git", "rev-list", "--all", "--count"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return int(result.stdout.strip())
+    except Exception:
+        return 0
+
 def navigate(commits, canvas):
     global selected_node
     nodes = list(node_positions.items())
     nodes.sort(key=lambda n: n[0][1], reverse=True) 
+
+    if not nodes:
+        return
 
     while True:
         clear()
@@ -98,43 +115,39 @@ def show_commit_info(commit):
     if commit["body"].strip():
         print("\n" + commit["body"])
     input("\nPress Enter to return")
-    msvcrt.getch
+    msvcrt.getch()
 
-def get_git_commits():
-    try:
-        result = subprocess.run(
-            [
-                "git", "log",
-                "--all",
-                "--date=iso",
-                "--pretty=format:%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1f%P%x1e"
-            ],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+def get_git_commits(limit=None):
+    cmd = [
+        "git", "log",
+        "--all",
+        "--date=iso",
+        "--pretty=format:%H%x1f%an%x1f%ad%x1f%s%x1f%b%x1f%P%x1e"
+    ]
 
-        commits = []
-        for record in result.stdout.strip("\n\x1e").split("\x1e"):
-            fields = record.split("\x1f")
-            commits.append({
-                "hash": fields[0],
-                "author": fields[1],
-                "date": fields[2],
-                "subject": fields[3],
-                "body": fields[4],
-            })
-        return commits
+    if limit:
+        cmd.insert(2, f"-{limit}")
 
-    except Exception:
-        return [{
-            "hash": "dummy",
-            "author": "you",
-            "date": "",
-            "subject": "initial commit",
-            "body": "",
-            "parents": []
-        }]
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        check=True
+    )
+
+    commits = []
+    for record in result.stdout.strip("\n\x1e").split("\x1e"):
+        fields = record.split("\x1f")
+        commits.append({
+            "hash": fields[0],
+            "author": fields[1],
+            "date": fields[2],
+            "subject": fields[3],
+            "body": fields[4],
+        })
+
+    return commits
+
 
 def seed_interaction(x, y, commits, canvas):
     while True:
@@ -395,7 +408,8 @@ def tree(x, y, commits, canvas):
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
                     number = random.random()
                     if number < .98:
-                        canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(["@", "#", "&", "%"])}"
+                        LEAVES = ["@", "#", "&", "%"]
+                        canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}"
                     else:
                         canvas[draw_y][draw_x] = f"{random.choice([RED, ORANGE])}0"
 
@@ -403,11 +417,42 @@ def tree(x, y, commits, canvas):
         print("".join(row))
         
 
+def get_limit(commit_count):
+    if commit_count <= 200:
+        return None  
+
+    while True:
+        clear()
+        print(f"{RED}This is a large repo! ({commit_count} commits){RESET}\n")
+        print("Rendering all commits may be slow or unreadable.")
+        print("Enter how many recent commits to render.")
+        print("Press Enter to render ALL commits anyway.\n")
+
+        choice = input("Commit limit: ").strip()
+
+        if choice == "":
+            return None 
+
+        try:
+            limit = int(choice)
+            if limit <= 0:
+                raise ValueError
+            return limit
+        except ValueError:
+            print("\nPlease enter a positive number.")
+            input("Press Enter to try again...")
+
+
 if __name__ == "__main__":
+
+    count = count()
+
+    limit = get_limit(count)
+
     WIDTH = 100
     HEIGHT = 100
     canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
-    commits = get_git_commits()
+    commits = get_git_commits(limit)
     commits.reverse()
     length = len(commits)
 
@@ -417,12 +462,12 @@ if __name__ == "__main__":
             seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
         # sprout - 2-10
-        elif length >= 2 and length <= 10:
+        elif 2 <= length <= 10:
             sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
         # flower - 11-20
-        elif length >= 11 and length <= 20:
+        elif 11 <= length <= 20:
             flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
