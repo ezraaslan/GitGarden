@@ -412,24 +412,24 @@ if __name__ == "__main__":
     length = len(commits)
 
     try:
-        # # seed - 1
-        # if length == 1:
-        #     seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+        # seed - 1
+        if length == 1:
+            seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
-        # # sprout - 2-10
-        # elif length >= 2 and length <= 10:
-        # sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        # navigate(commits, canvas)
-
-        # # flower - 11-20
-        # elif length >= 11 and length <= 20:
-        # flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
-        # navigate(commits, canvas)
-
-        # # tree - >21
-        # else:
-        tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        # sprout - 2-10
+        elif length >= 2 and length <= 10:
+        sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
         navigate(commits, canvas)
+
+        # flower - 11-20
+        elif length >= 11 and length <= 20:
+        flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+        navigate(commits, canvas)
+
+        # tree - >21
+        else:
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            navigate(commits, canvas)
 
     except KeyboardInterrupt:
         pass
