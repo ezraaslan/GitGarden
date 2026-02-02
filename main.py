@@ -3,6 +3,8 @@ import random
 import os
 import readchar
 from readchar import key
+import math
+import time
 
 node_positions = {} 
 selected_node = 0 
@@ -46,8 +48,13 @@ ORANGE = "\033[38;5;208m"
 
 RESET = "\033[0m"
 
-def clear():
-    os.system("cls" if os.name == "nt" else "clear")
+def delay(num):
+    MAX_DELAY = .2   # smallest
+    MIN_DELAY = 0.002  # longest
+
+    delay = MAX_DELAY / math.log2(num + 2)
+
+    return max(MIN_DELAY, delay)
 
 def count():
     try:
@@ -70,8 +77,7 @@ def navigate(commits, canvas):
         return
 
     while True:
-        clear()
-        print("\033[H", end="")
+        print("\033[2J\033[H", end="")
         (x, y), idx = nodes[selected_node]
 
         window_height = 30 
@@ -110,7 +116,7 @@ def navigate(commits, canvas):
 
 
 def show_commit_info(commit):
-    clear()
+    print("\033[2J\033[H", end="")
     print("Commit:", commit["hash"])
     print("Author:", commit["author"])
     print("Date:  ", commit["date"])
@@ -250,7 +256,8 @@ def sprout(x, y, commits, canvas):
 
         
         y -= 1
-        clear()
+        print("\033[2J\033[H", end="")
+        time.sleep(delay(total_commits))
 
         view_start = max(0, y - 10)
         view_end = min(HEIGHT, y + 30)
@@ -318,7 +325,8 @@ def flower(x, y, commits, canvas):
         x += ran
         y -= 1
         
-        clear()
+        print("\033[2J\033[H", end="")
+        time.sleep(delay(total_commits))
         view_start = max(0, y - 10)
         view_end = min(HEIGHT, y + 30)
         for row in canvas[view_start:view_end]: 
@@ -386,7 +394,8 @@ def tree(x, y, commits, canvas):
         if y < 0:
             break
         
-        clear()
+        print("\033[2J\033[H", end="")
+        time.sleep(delay(total_commits))
         view_start = max(0, y - 10)
         view_end = min(HEIGHT, y + 30)
         for row in canvas[view_start:view_end]: 
@@ -423,7 +432,7 @@ def get_limit(commit_count):
         return None  
 
     while True:
-        clear()
+        print("\033[2J\033[H", end="")
         print(f"{RED}This is a large repo! ({commit_count} commits){RESET}\n")
         print("Rendering all commits may be slow or unreadable.")
         print("Enter how many recent commits to render.")
