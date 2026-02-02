@@ -57,6 +57,7 @@ Pull requests are welcome. Any additions, especially on the ASCII art, are encou
 - Git installed and available in your system PATH  
 - A terminal that supports ANSI colors
 - pip (auto comes with Python)
+  
 **Cygwin Users:** Make sure you install Python packages inside Cygwin:
 ```bash
 python3 -m pip install --upgrade readchar
