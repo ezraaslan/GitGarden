@@ -349,22 +349,15 @@ def tree(x, y, commits, canvas):
     sprout_x = x + 19
     sprout_y = y - 2
 
-    canvas[y-1][x+thickness+4] = f"{brown}__A__{RESET}"
-    anthill_text = "---~/``@``\\-~^-"
-
-    node_positions[(sprout_x, sprout_y)] = 0
-    
-    soil_cells = []
-    for char in anthill_text:
-        if char == " ":
-            soil_cells.append(" ")
-        else:
-            soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
-
-    
-    for i, cell in enumerate(soil_cells):
-        if x + i < WIDTH:
-            canvas[y][x + i+thickness] = cell
+    if y > 1:
+        canvas[y-1][min(WIDTH-1, x+thickness+4)] = f"{brown}__A__{RESET}"
+        
+        anthill_text = "---~/``@``\\-~^-"
+        for i, char in enumerate(anthill_text):
+            draw_x = x + i + thickness
+            if 0 <= y < HEIGHT and 0 <= draw_x < WIDTH:
+                color_char = f"{random.choice(SEED_BROWNS)}{char}{RESET}" if char != " " else " "
+                canvas[y][draw_x] = color_char
 
 
     for i, commit in enumerate(commits):
@@ -385,10 +378,13 @@ def tree(x, y, commits, canvas):
                 canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
 
             
-            center_x = x + (thickness // 2)
-            node_positions[(center_x, y)] = i 
+        center_x = x + (thickness // 2)
+        node_positions[(center_x, y)] = i 
 
         y -= 1
+
+        if y < 0:
+            break
         
         clear()
         view_start = max(0, y - 10)
@@ -408,12 +404,12 @@ def tree(x, y, commits, canvas):
     for i in range(-radius, radius + 1):
         for j in range(-radius * 2, (radius * 2) + 1):
             if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
-                draw_y = y + i - 6
-                draw_x = center_x + j
-                if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
+                draw_y, draw_x = y + i - 6, center_x + j
+                
+                if 0 <= draw_y < len(canvas) and 0 <= draw_x < len(canvas[0]):
                     number = random.random()
                     if number < .98:
-                        LEAVES = ["@", "#", "&", "%"]
+                        LEAVES = ["#", "$", "%", '@']
                         canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}"
                     else:
                         canvas[draw_y][draw_x] = f"{random.choice([RED, ORANGE])}0"
@@ -454,12 +450,12 @@ if __name__ == "__main__":
 
     limit = get_limit(count)
 
-    WIDTH = 100
-    HEIGHT = 100
-    canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
     commits = get_git_commits(limit)
     commits.reverse()
     length = len(commits)
+    WIDTH = 100
+    HEIGHT = length + 20
+    canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
 
     try:
         # seed - 1
