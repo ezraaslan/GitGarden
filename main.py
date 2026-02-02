@@ -1,8 +1,8 @@
 import subprocess
 import random
 import os
-import math
-import msvcrt
+import readchar
+from readchar import key
 
 node_positions = {} 
 selected_node = 0 
@@ -94,15 +94,19 @@ def navigate(commits, canvas):
               f"Commit: {commits[idx]['hash'][:7]} | {commits[idx]['subject']}{RESET}")
         print("(W/S or Arrows to move, Enter for info, Q to quit)")
 
-        key = msvcrt.getch()
-        if key in (b'\x00', b'\xe0'):
-            key = msvcrt.getch()
-            if key == b'H': selected_node = min(len(nodes) - 1, selected_node + 1) # up
-            elif key == b'P': selected_node = max(0, selected_node - 1) # down
-        elif key == b'w': selected_node = min(len(nodes) - 1, selected_node + 1)
-        elif key == b's': selected_node = max(0, selected_node - 1)
-        elif key == b'\r': show_commit_info(commits[idx])
-        elif key in (b'q', b'Q'): break
+        k = readchar.readkey()
+
+        if k == key.UP or k == "w":
+            selected_node = min(len(nodes) - 1, selected_node + 1)
+
+        elif k == key.DOWN or k == "s":
+            selected_node = max(0, selected_node - 1)
+
+        elif k == key.ENTER:
+            show_commit_info(commits[idx])
+
+        elif k.lower() == "q":
+            break
 
 
 def show_commit_info(commit):
@@ -115,7 +119,7 @@ def show_commit_info(commit):
     if commit["body"].strip():
         print("\n" + commit["body"])
     input("\nPress Enter to return")
-    msvcrt.getch()
+   
 
 def get_git_commits(limit=None):
     cmd = [
@@ -151,17 +155,17 @@ def get_git_commits(limit=None):
 
 def seed_interaction(x, y, commits, canvas):
     while True:
-        key = msvcrt.getch()
+        k = readchar.readkey()
 
-        if key == b'\x03':
+        if k.lower() == "q":
             raise KeyboardInterrupt
         
-        elif key == b'\r':  
+        elif k == key.ENTER:  
             show_commit_info(commits[0])
             seed(x, y, commits, canvas)
             break
 
-        elif key in (b'q', b'Q'):
+        elif k.lower() == "q":
             break
 
 def seed(x, y, commits, canvas):
