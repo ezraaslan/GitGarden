@@ -337,7 +337,8 @@ def flower(x, y, commits, canvas):
 
 def tree(x, y, commits, canvas):
     total_commits = len(commits)
-    thickness = max(2, total_commits // 4)
+    MAX_THICKNESS = (WIDTH // 2) - 2
+    thickness = min(MAX_THICKNESS, max(2, total_commits // 4))
 
     brown = random.choice(SEED_BROWNS)
 
