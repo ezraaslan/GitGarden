@@ -53,12 +53,10 @@ Pull requests are welcome. Any additions, especially on the ASCII art, are encou
 
 ## Requirements
 
-- Python 3.x  
+- Python 3.7+  
 - Git installed and available in your system PATH  
-- A terminal that supports ANSI colors  
-
-**Note:**  
-This project currently uses `msvcrt`, so it is designed for Windows terminals.
+- A terminal that supports ANSI colors
+- pip (auto comes with Python) 
 
 ---
 
@@ -69,4 +67,11 @@ Clone the repository:
 ```bash
 git clone https://github.com/YOUR_USERNAME/gitgarden.git
 cd gitgarden
+pip install -r requirements.txt
 python main.py
+
+```
+---
+## Notes
+- Tested with Python 3.9+. Earlier versions may work but have not been fully tested.
+- If colors look wrong on Windows, use Windows Terminal or enable ANSI support.
