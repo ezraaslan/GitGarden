@@ -71,8 +71,8 @@ python3 -m pip install --upgrade readchar
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/gitgarden.git
-cd gitgarden
+git clone https://github.com/ezraaslan/GitGarden.git
+cd GitGarden
 pip install -r requirements.txt
 python main.py
 
