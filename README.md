@@ -37,10 +37,11 @@ Each node represents a commit, and you can move through them to inspect details 
 
 ## Roadmap
 
-- Cross-platform keyboard input (remove Windows-only dependency)
 - Branch visualization
 - Save plant snapshots as images
 - Custom themes
+- Display repo contributors as birds
+- More wildlife/environment
 
 ---
 
