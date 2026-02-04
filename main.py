@@ -13,7 +13,6 @@ nodes = list(node_positions.items())
 nodes.sort(key=lambda n: n[1]) 
 
 
-
 # colors
 SEED_BROWNS = [
     "\033[38;5;94m",  # Original Brown
@@ -77,6 +76,10 @@ def navigate(commits, canvas):
         return
 
     while True:
+
+        TOP = len(commits) - 1
+        BOTTOM = 0
+
         print("\033[2J\033[H", end="")
         (x, y), idx = nodes[selected_node]
 
@@ -102,11 +105,17 @@ def navigate(commits, canvas):
 
         k = readchar.readkey()
 
-        if k == key.UP or k == "w":
+        if k in (key.UP, "w", "W"):
             selected_node = min(len(nodes) - 1, selected_node + 1)
 
-        elif k == key.DOWN or k == "s":
+        elif k in (key.DOWN, "s", "S"):
             selected_node = max(0, selected_node - 1)
+
+        elif k in (key.PAGE_UP, key.CTRL_W):
+            selected_node = TOP
+
+        elif k in (key.PAGE_DOWN, key.CTRL_S):
+            selected_node = BOTTOM
 
         elif k == key.ENTER:
             show_commit_info(commits[idx])
@@ -154,6 +163,7 @@ def get_git_commits(limit=None):
             "date": fields[2],
             "subject": fields[3],
             "body": fields[4],
+            "parents": fields[5].split() if fields[5] else []
         })
 
     return commits
@@ -235,7 +245,7 @@ def sprout(x, y, commits, canvas):
 
     total_commits = len(commits)
 
-    for i in range(total_commits):
+    for i in range(1, total_commits):
         node_positions[(x, y)] = i
 
         if i != 0 and i != (total_commits-1) and random.random() > .65:
@@ -294,7 +304,7 @@ def flower(x, y, commits, canvas):
         if x + i < WIDTH:
             canvas[y][x + i+thickness] = cell
 
-    for i, commit in enumerate(commits):
+    for i in range(1, total_commits):
         if y <= 15:
             break
 
@@ -347,7 +357,7 @@ def flower(x, y, commits, canvas):
                         canvas[draw_y][draw_x] = f"{YELLOW}+"
 
 
-def tree(x, y, commits, canvas):
+def tree(x, y, commits, canvas, children):
     total_commits = len(commits)
     MAX_THICKNESS = (WIDTH // 2) - 2
     thickness = min(MAX_THICKNESS, max(2, total_commits // 4))
@@ -369,21 +379,31 @@ def tree(x, y, commits, canvas):
 
 
     for i, commit in enumerate(commits):
-        if i == 0:
-            canvas[y][x-1] = f"{BROWN}/"
-            canvas[y][x + thickness + 1] = f"{BROWN}\\"
+
+        is_merge = len(commit["parents"]) > 1
+        is_split = len(children[commit["hash"]]) > 1
+
+        if is_merge:
+                canvas[y][x] = f"{GREEN}MERGE"
+        elif is_split:
+            canvas[y][x] = f"{GREEN}SPLIT"  
+
         else:
-            num = random.random()
-            if num < .3:
-                canvas[y][x] = f"{BROWN}|"
-                canvas[y][x + thickness] = f"{BROWN}|"
-            elif num > .3 and num < .6:
-                canvas[y][x] = f"{BROWN}|"
-                canvas[y][x + thickness] = f"{BROWN}|/"
+            if i == 0:
+                canvas[y][x-1] = f"{BROWN}/"
+                canvas[y][x + thickness + 1] = f"{BROWN}\\"
             else:
-                canvas[y][x-1] = f"{BROWN}\\|"
-                canvas[y][x + thickness - 1] = f"{BROWN}|"
-                canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
+                num = random.random()
+                if num < .3:
+                    canvas[y][x] = f"{BROWN}|"
+                    canvas[y][x + thickness] = f"{BROWN}|"
+                elif num > .3 and num < .6:
+                    canvas[y][x] = f"{BROWN}|"
+                    canvas[y][x + thickness] = f"{BROWN}|/"
+                else:
+                    canvas[y][x-1] = f"{BROWN}\\|"
+                    canvas[y][x + thickness - 1] = f"{BROWN}|"
+                    canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
 
             
         center_x = x + (thickness // 2)
@@ -407,9 +427,10 @@ def tree(x, y, commits, canvas):
                 break
         
     center_x = x + (thickness // 2)
-    radius = max(2, min(total_commits // 4, 8))
+    radius = max(5, thickness // 2)
+    radius = min(radius, HEIGHT // 6)
+
     
-    first_row = 0
     for i in range(-radius, radius + 1):
         for j in range(-radius * 2, (radius * 2) + 1):
             if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
@@ -466,24 +487,32 @@ if __name__ == "__main__":
     HEIGHT = length + 20
     canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
 
+
+    children = {c["hash"]: [] for c in commits}
+    for c in commits:
+        for parent in c["parents"]:
+            if parent in children:
+                children[parent].append(c["hash"])
+
+
     try:
         # seed - 1
         if length == 1:
             seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
 
-        # sprout - 2-10
-        elif 2 <= length <= 10:
+        # sprout - 2-20
+        elif 2 <= length <= 20:
             sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
-        # flower - 11-20
-        elif 11 <= length <= 20:
+        # flower - 21-40
+        elif 21 <= length <= 40:
             flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
-        # tree - >21
+        # tree - >51
         else:
-            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
     except KeyboardInterrupt:
