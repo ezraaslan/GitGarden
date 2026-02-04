@@ -380,30 +380,22 @@ def tree(x, y, commits, canvas, children):
 
     for i, commit in enumerate(commits):
 
-        is_merge = len(commit["parents"]) > 1
-        is_split = len(children[commit["hash"]]) > 1
-
-        if is_merge:
-                canvas[y][x] = f"{GREEN}MERGE"
-        elif is_split:
-            canvas[y][x] = f"{GREEN}SPLIT"  
-
+       
+        if i == 0:
+            canvas[y][x-1] = f"{BROWN}/"
+            canvas[y][x + thickness + 1] = f"{BROWN}\\"
         else:
-            if i == 0:
-                canvas[y][x-1] = f"{BROWN}/"
-                canvas[y][x + thickness + 1] = f"{BROWN}\\"
+            num = random.random()
+            if num < .3:
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x + thickness] = f"{BROWN}|"
+            elif num > .3 and num < .6:
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x + thickness] = f"{BROWN}|/"
             else:
-                num = random.random()
-                if num < .3:
-                    canvas[y][x] = f"{BROWN}|"
-                    canvas[y][x + thickness] = f"{BROWN}|"
-                elif num > .3 and num < .6:
-                    canvas[y][x] = f"{BROWN}|"
-                    canvas[y][x + thickness] = f"{BROWN}|/"
-                else:
-                    canvas[y][x-1] = f"{BROWN}\\|"
-                    canvas[y][x + thickness - 1] = f"{BROWN}|"
-                    canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
+                canvas[y][x-1] = f"{BROWN}\\|"
+                canvas[y][x + thickness - 1] = f"{BROWN}|"
+                canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
 
             
         center_x = x + (thickness // 2)
@@ -510,7 +502,7 @@ if __name__ == "__main__":
             flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
-        # tree - >41
+        # tree - 41+
         else:
             tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
