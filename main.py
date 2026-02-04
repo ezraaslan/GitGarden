@@ -510,7 +510,7 @@ if __name__ == "__main__":
             flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
-        # tree - >51
+        # tree - >41
         else:
             tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
