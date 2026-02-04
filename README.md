@@ -15,9 +15,9 @@ The goal is simple: make progress visible in a way that feels alive.
 GitGarden reads your repository’s commit log and draws a plant directly in your terminal:
 
 - **1 commit** → Seed  
-- **2–10 commits** → Sprout  
-- **11–20 commits** → Flower  
-- **21+ commits** → Tree  
+- **2–20 commits** → Sprout  
+- **21–400 commits** → Flower  
+- **41+ commits** → Tree  
 
 Each node represents a commit, and you can move through them to inspect details like the hash, author, date, and message.
 
