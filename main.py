@@ -357,15 +357,12 @@ def flower(x, y, commits, canvas):
                         canvas[draw_y][draw_x] = f"{YELLOW}+"
 
 
-def tree(x, y, commits, canvas, children):
+def tree(x, y, commits, canvas):
     total_commits = len(commits)
     MAX_THICKNESS = (WIDTH // 2) - 2
     thickness = min(MAX_THICKNESS, max(2, total_commits // 4))
 
     brown = random.choice(SEED_BROWNS)
-
-    sprout_x = x + 19
-    sprout_y = y - 2
 
     if y > 1:
         canvas[y-1][min(WIDTH-1, x+thickness+4)] = f"{brown}__A__{RESET}"
@@ -415,7 +412,6 @@ def tree(x, y, commits, canvas, children):
 
         for idx, row in enumerate(canvas):
             if "".join(row).strip():
-                first_row = idx
                 break
         
     center_x = x + (thickness // 2)
@@ -504,7 +500,7 @@ if __name__ == "__main__":
 
         # tree - 41+
         else:
-            tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
             navigate(commits, canvas)
 
     except KeyboardInterrupt:
