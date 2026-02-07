@@ -55,7 +55,7 @@ Pull requests are welcome. Any additions, especially on the ASCII art, are encou
 ## Development
 We are constantly working to improve GitGarden and add new features.
 The `main` branch is stable and usable.
-Active development and experiments happen on the `testing` branch.
+Active development and experiments happen on other branches.
 
 ## Requirements
 
