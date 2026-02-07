@@ -5,6 +5,7 @@ import readchar
 from readchar import key
 import math
 import time
+from collections import defaultdict
 
 node_positions = {} 
 selected_node = 0 
@@ -156,7 +157,7 @@ def get_git_commits(limit=None):
 
     commits = []
     for record in result.stdout.strip("\n\x1e").split("\x1e"):
-        fields = record.split("\x1f")
+        fields = [f.strip() for f in record.split("\x1f")]
         commits.append({
             "hash": fields[0],
             "author": fields[1],
@@ -364,8 +365,9 @@ def tree(x, y, commits, canvas, children):
 
     brown = random.choice(SEED_BROWNS)
 
-    sprout_x = x + 19
-    sprout_y = y - 2
+    side = True # True = right, False = left
+
+    branched = False
 
     if y > 1:
         canvas[y-1][min(WIDTH-1, x+thickness+4)] = f"{brown}__A__{RESET}"
@@ -380,30 +382,69 @@ def tree(x, y, commits, canvas, children):
 
     for i, commit in enumerate(commits):
 
+        is_split = len(children.get(commit["hash"], [])) > 1
         is_merge = len(commit["parents"]) > 1
-        is_split = len(children[commit["hash"]]) > 1
 
-        if is_merge:
-                canvas[y][x] = f"{GREEN}MERGE"
-        elif is_split:
-            canvas[y][x] = f"{GREEN}SPLIT"  
+        if is_split:
+            branch_x = x - 2 if side else x + thickness + 1
+            branch_char = "\\\\" if side else "//"
+
+            if side:
+                canvas[y][branch_x] = f"{BROWN}{branch_char}"
+                canvas[y][x-1] = f"{BROWN}|"
+                canvas[y][x+thickness-1] = f"{BROWN}|"
+            else:
+                canvas[y][branch_x] = f"{BROWN}{branch_char}"
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x+thickness] = f"{BROWN}|"
+
+            branched = True
+
+        elif is_merge:
+            branch_x = x - 2 if side else x + thickness + 1
+            branch_char = "//" if side else "\\\\"
+
+            if side:
+                canvas[y][branch_x] = f"{BROWN}{branch_char}"
+                canvas[y][x-1] = f"{BROWN}|"
+                canvas[y][x+thickness-1] = f"{BROWN}|"
+            else:
+                canvas[y][branch_x] = f"{BROWN}{branch_char}"
+                canvas[y][x] = f"{BROWN}|"
+                canvas[y][x+thickness] = f"{BROWN}|"
+
+            branched = False
+            side = not side
+
 
         else:
             if i == 0:
                 canvas[y][x-1] = f"{BROWN}/"
                 canvas[y][x + thickness + 1] = f"{BROWN}\\"
             else:
-                num = random.random()
-                if num < .3:
-                    canvas[y][x] = f"{BROWN}|"
-                    canvas[y][x + thickness] = f"{BROWN}|"
-                elif num > .3 and num < .6:
-                    canvas[y][x] = f"{BROWN}|"
-                    canvas[y][x + thickness] = f"{BROWN}|/"
+                if branched != True:
+                    num = random.random()
+                    if num < .3:
+                        canvas[y][x] = f"{BROWN}|"
+                        canvas[y][x + thickness] = f"{BROWN}|"
+                    elif num > .3 and num < .6:
+                        canvas[y][x] = f"{BROWN}|"
+                        canvas[y][x + thickness] = f"{BROWN}|/"
+                    else:
+                        canvas[y][x-1] = f"{BROWN}\\|"
+                        canvas[y][x + thickness - 1] = f"{BROWN}|"
+                        canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
                 else:
-                    canvas[y][x-1] = f"{BROWN}\\|"
-                    canvas[y][x + thickness - 1] = f"{BROWN}|"
-                    canvas[y][x + thickness - random.randint(1,thickness)] = f"{random.choice([PURPLE, PINK, RED])}*"
+                    branch_x = x - 3 if side else x + thickness + 1
+                    if side:
+                        canvas[y][branch_x] = f"{BROWN}||"
+                        canvas[y][x-1] = f"{BROWN}|"
+                        canvas[y][x+thickness-1] = f"{BROWN}|"
+                    else:
+                        canvas[y][branch_x+1] = f"{BROWN}||"
+                        canvas[y][x] = f"{BROWN}|"
+                        canvas[y][x+thickness] = f"{BROWN}|"
+
 
             
         center_x = x + (thickness // 2)
@@ -488,12 +529,12 @@ if __name__ == "__main__":
     canvas = [[" "] * WIDTH for _ in range(HEIGHT)]
 
 
-    children = {c["hash"]: [] for c in commits}
+        
+    children = defaultdict(list)
+
     for c in commits:
         for parent in c["parents"]:
-            if parent in children:
-                children[parent].append(c["hash"])
-
+            children[parent].append(c["hash"])
 
     try:
         # seed - 1
