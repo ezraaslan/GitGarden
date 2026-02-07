@@ -430,7 +430,7 @@ def tree(x, y, commits, canvas):
                         LEAVES = ["#", "$", "%", '@']
                         canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}"
                     else:
-                        canvas[draw_y][draw_x] = f"{random.choice([RED, ORANGE])}0"
+                        canvas[draw_y][draw_x] = f"{ORANGE}0"
 
     for row in canvas[view_start:view_end]: 
         print("".join(row))
