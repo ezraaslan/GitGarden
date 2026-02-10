@@ -219,16 +219,14 @@ def seed(x, y, commits, canvas):
     
     seed_interaction(x, y, commits, canvas)
 
-def sprout(x, y, commits, canvas):
+
+def sprout(x, y, commits, canvas, children):
 
     brown = random.choice(SEED_BROWNS)
-
     sprout_x = x + 19
     sprout_y = y - 2
-
     canvas[y-1][x+5] = f"{brown}__A__{RESET}"
     anthill_text = "---~/``@``\\-~^-"
-
     node_positions[(sprout_x, sprout_y)] = 0
     
     soil_cells = []
@@ -238,34 +236,56 @@ def sprout(x, y, commits, canvas):
         else:
             soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
 
-    
     for i, cell in enumerate(soil_cells):
         if x + i < WIDTH:
             canvas[y][x + i] = cell
 
-
     total_commits = len(commits)
+    branch_side = True 
+    branched = False
 
-    for i in range(1, total_commits):
+    for i, commit in enumerate(commits[1:], start=1):
         node_positions[(x, y)] = i
 
-        if i != 0 and i != (total_commits-1) and random.random() > .65:
-            side = random.choice(["left", "right"])
-
-            if side == "left":
-                canvas[y][x-3] = f"{GREEN}<%\\{BROWN}|"
-            elif side == "right":
-                canvas[y][x] = f"{BROWN}|{GREEN}/%>"
-            else:
-                canvas[y][x] = "\033[38;5;94m|"
-        elif i == total_commits-1:
+        if i == total_commits - 1:
             canvas[y][x-2] = f"{GREEN}@\\|%>"
             canvas[y+1][x-3] = f"{GREEN}@"
-        else:
-            canvas[y][x] = f"{BROWN}|"
-            node_positions[(x, y)] = i
-
         
+        elif random.random() > .65:
+            side = random.choice([True, False])
+            if side:  # left
+                canvas[y][x-3:x+1] = [f"{GREEN}<{RESET}", f"{GREEN}%{RESET}", f"{GREEN}\\{RESET}", f"{BROWN}|{RESET}"]
+            else:     # right 
+                canvas[y][x:x+4] = [f"{BROWN}|{RESET}", f"{GREEN}/{RESET}", f"{GREEN}%{RESET}", f"{GREEN}>{RESET}"]
+        
+        else:
+            canvas[y][x] = f"{BROWN}|{RESET}"
+
+        is_split = len(children.get(commit["hash"], [])) > 1
+        is_merge = len(commit["parents"]) > 1
+
+        if is_split:
+            branched = True
+            branch_char = "\\" if branch_side else "/"
+            if not branch_side:
+                canvas[y][x+1] = f"{BROWN}{branch_char}{RESET}"
+            else:
+                canvas[y][x-1] = f"{BROWN}{branch_char}{RESET}"
+        elif is_merge:
+            branched = False
+            branch_char = "\\" if not branch_side else "/"
+            if not branch_side:
+                canvas[y][x+1] = f"{BROWN}{branch_char}{RESET}"
+            else:
+                canvas[y][x-1] = f"{BROWN}{branch_char}{RESET}"
+            branch_side = not branch_side
+
+        if branched and not is_split:
+            if branch_side:
+                canvas[y][x-2] = f"{BROWN}|{RESET}"
+            else:
+                canvas[y][x+2] = f"{BROWN}|{RESET}"
+
         y -= 1
         print("\033[2J\033[H", end="")
         time.sleep(delay(total_commits))
@@ -275,13 +295,11 @@ def sprout(x, y, commits, canvas):
         for row in canvas[view_start:view_end]: 
             print("".join(row))
 
-
-def flower(x, y, commits, canvas):
+def flower(x, y, commits, canvas, children):
     total_commits = len(commits)
     branch_interval = max(1, total_commits // 4)
     leaf_interval = max(1, total_commits // 4)
     thickness = max(2, total_commits // 8)
-
 
     brown = random.choice(SEED_BROWNS)
 
@@ -300,12 +318,38 @@ def flower(x, y, commits, canvas):
         else:
             soil_cells.append(f"{random.choice(SEED_BROWNS)}{char}{RESET}")
 
-    
     for i, cell in enumerate(soil_cells):
         if x + i < WIDTH:
             canvas[y][x + i+thickness] = cell
 
-    for i in range(1, total_commits):
+    side = True # True = right, False = left
+    branched = False
+
+    for i, commit in enumerate(commits[1:], start=1):
+        is_split = len(children.get(commit["hash"], [])) > 1
+        is_merge = len(commit["parents"]) > 1
+
+        bx = (x - 2) if side else (x + thickness)
+        if is_split:
+            branched = True
+            char_pair = ["\\", "\\"] if side else ["/", "/"]
+
+            if 0 <= bx < WIDTH - 1:
+                if side:
+                    canvas[y][bx:bx-3] = [f"{GREEN}{char_pair[0]}{RESET}", f"{GREEN}{char_pair[1]}{RESET}"]
+                else:
+                    canvas[y][bx:bx+3] = [f"{GREEN}{char_pair[0]}{RESET}", f"{GREEN}{char_pair[1]}{RESET}"]
+        elif is_merge:
+            branched = False
+            char_pair = ["/", "/"] if side else ["\\", "\\"]
+
+            if 0 <= bx < WIDTH - 1:
+                if side:
+                    canvas[y][bx:bx-3] = [f"{GREEN}{char_pair[0]}{RESET}", f"{GREEN}{char_pair[1]}{RESET}"]
+                else:
+                    canvas[y][bx:bx+3] = [f"{GREEN}{char_pair[0]}{RESET}", f"{GREEN}{char_pair[1]}{RESET}"]
+            side = not side
+
         if y <= 15:
             break
 
@@ -315,23 +359,29 @@ def flower(x, y, commits, canvas):
         if i % branch_interval == 0 and i != 0 and total_commits >= 10:
             ran = random.randint(-1, 1)
 
-        char = f"{GREEN}|"
-        if ran == -1: char = f"{GREEN}\\"
-        elif ran == 1: char = f"{GREEN}/"
+        stem_char = f"{GREEN}|{RESET}"
+        if ran == -1: stem_char = f"{GREEN}\\{RESET}"
+        elif ran == 1: stem_char = f"{GREEN}/{RESET}"
 
         if total_commits > 10:
-            for t in range(thickness):
-                if 0 <= x + t < WIDTH:
-                    canvas[y][x + t] = char
+            if 0 <= x < WIDTH - thickness:
+                canvas[y][x : x + thickness] = [stem_char] * thickness
 
-            if i % leaf_interval == 0 and i != 0:
-                side = random.choice([-1, thickness])
-                if 0 <= x + side < WIDTH: 
-                    canvas[y][x + side] = "\033[38;5;22m%"
+            if not branched and i % leaf_interval == 0:
+                leaf_side = -1 if random.choice([True, False]) else thickness
+                if 0 <= x + leaf_side < WIDTH:
+                    canvas[y][x + leaf_side] = f"\033[38;5;22m%{RESET}"
         else:
-            canvas[y][x] = char
-            node_positions[(x, y)] = i
-            canvas[y][x + 1] = char
+            if 0 <= x < WIDTH - 1:
+                canvas[y][x:x+2] = [stem_char, stem_char]
+
+        if branched and not is_split:
+            bx = (x - 2) if side else (x + thickness)
+            if 0 <= bx < WIDTH - 1:
+                if side:
+                    canvas[y][bx-1:bx+1] = [f"{GREEN}|{RESET}", f"{GREEN}|{RESET}"]
+                else:
+                    canvas[y][bx+1:bx+2] = [f"{GREEN}|{RESET}", f"{GREEN}|{RESET}"]
 
         x += ran
         y -= 1
@@ -353,12 +403,13 @@ def flower(x, y, commits, canvas):
                 draw_x = center_x + j
                 if 0 <= draw_y < HEIGHT and 0 <= draw_x < WIDTH:
                     if (j / (radius * 2))**2 + (i / radius)**2 > 0.8:
-                        canvas[draw_y][draw_x] = f"{PINK}#" 
+                        canvas[draw_y][draw_x] = f"{PINK}#{RESET}" 
                     else:
-                        canvas[draw_y][draw_x] = f"{YELLOW}+"
+                        canvas[draw_y][draw_x] = f"{YELLOW}+{RESET}"
 
 
-def tree(x, y, commits, canvas):
+
+def tree(x, y, commits, canvas, children):
     total_commits = len(commits)
     MAX_THICKNESS = (WIDTH // 2) - 2
     thickness = min(MAX_THICKNESS, max(2, total_commits // 4))
@@ -422,7 +473,7 @@ def tree(x, y, commits, canvas):
                 canvas[y][x-1] = f"{BROWN}/"
                 canvas[y][x + thickness + 1] = f"{BROWN}\\"
             else:
-                if branched != True:
+                if not branched:
                     num = random.random()
                     if num < .3:
                         canvas[y][x] = f"{BROWN}|"
@@ -547,12 +598,12 @@ if __name__ == "__main__":
 
         # flower - 21-40
         elif 21 <= length <= 40:
-            flower(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            flower(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
         # tree - 41+
         else:
-            tree(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
     except KeyboardInterrupt:
