@@ -518,7 +518,7 @@ def tree(x, y, commits, canvas, children):
                 break
         
     center_x = x + (thickness // 2)
-    radius = max(5, thickness // 2)
+    radius = max(8, thickness // 2)
     radius = min(radius, HEIGHT // 6)
 
     
