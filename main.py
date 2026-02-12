@@ -412,7 +412,7 @@ def flower(x, y, commits, canvas, children):
 def tree(x, y, commits, canvas, children):
     total_commits = len(commits)
     MAX_THICKNESS = (WIDTH // 2) - 2
-    thickness = min(MAX_THICKNESS, max(2, total_commits // 4))
+    thickness = min(MAX_THICKNESS, max(2, total_commits // 6))
 
     brown = random.choice(SEED_BROWNS)
 
@@ -518,22 +518,43 @@ def tree(x, y, commits, canvas, children):
                 break
         
     center_x = x + (thickness // 2)
-    radius = max(8, thickness // 2)
+    radius = max(10, thickness // 2)
     radius = min(radius, HEIGHT // 6)
 
-    
+    LEAVES = ["#", "$", "%", "@"]
     for i in range(-radius, radius + 1):
         for j in range(-radius * 2, (radius * 2) + 1):
-            if (j / (radius * 2))**2 + (i / radius)**2 <= 1.1:
+            dist = (j / (radius * 2))**2 + (i / radius)**2
+
+            if dist <= 1.15:
                 draw_y, draw_x = y + i - 6, center_x + j
-                
+
                 if 0 <= draw_y < len(canvas) and 0 <= draw_x < len(canvas[0]):
-                    number = random.random()
-                    if number < .98:
-                        LEAVES = ["#", "$", "%", '@']
-                        canvas[draw_y][draw_x] = f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}"
+                    r = random.random()
+
+                    # basic ellipse
+                    if dist < 0.8:
+                        if r < 0.98:
+                            canvas[draw_y][draw_x] = (
+                                f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}"
+                            )
+                        else:
+                            canvas[draw_y][draw_x] = f"{ORANGE}0"
+                    # edge noise
+                    elif .8 < dist < 1:
+                        if r < 0.15:
+                            continue
+
+                        else:
+                            canvas[draw_y][draw_x] = (
+                                f"{random.choice(TREE_GREENS)}{random.choice(LEAVES)}")
                     else:
-                        canvas[draw_y][draw_x] = f"{ORANGE}0"
+                        if r < 0.15:
+                            continue
+                        else:
+                            canvas[draw_y][draw_x] = (
+                                f"{random.choice(TREE_GREENS)}{random.choice(["5", "4", "5", "~", "-", "_"])}")
+
 
     for row in canvas[view_start:view_end]: 
         print("".join(row))
