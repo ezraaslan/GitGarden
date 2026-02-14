@@ -33,7 +33,7 @@ Each node represents a commit, and you can move through them to inspect details 
 
 ---
 
-<img src="tree-gif.gif" align="right" width="450px">
+<img src="new_tree_gif.gif" align="right" width="450px">
 
 ## Roadmap
 
