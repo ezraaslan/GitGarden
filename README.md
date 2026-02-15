@@ -37,12 +37,11 @@ Each node represents a commit, and you can move through them to inspect details 
 
 ## Roadmap
 
-- Branch visualization
-- Save plant snapshots as images
-- Custom themes
-- Display repo contributors as birds
-- More wildlife/environment
-
+- [X] Branch visualization
+- [X] More wildlife/environment
+- [ ] Save plant snapshots as images
+- [ ] Custom themes
+- [ ] Display repo contributors as birds
 ---
 
 ## Contributing
