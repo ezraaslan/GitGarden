@@ -624,7 +624,7 @@ if __name__ == "__main__":
 
         # tree - 41+
         else:
-            seed(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
+            tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
     except KeyboardInterrupt:
