@@ -610,11 +610,11 @@ if __name__ == "__main__":
     try:
         # seed - 1
         if length == 1:
-            seed(WIDTH // 2, HEIGHT - 1, commits, canvas,)
+            seed(WIDTH // 2, HEIGHT - 1, commits, canvas)
 
         # sprout - 2-20
         elif 2 <= length <= 20:
-            sprout(WIDTH // 2, HEIGHT - 1, commits, canvas)
+            sprout(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
         # flower - 21-40
@@ -624,7 +624,7 @@ if __name__ == "__main__":
 
         # tree - 41+
         else:
-            tree(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
+            seed(WIDTH // 2, HEIGHT - 1, commits, canvas, children)
             navigate(commits, canvas)
 
     except KeyboardInterrupt:
