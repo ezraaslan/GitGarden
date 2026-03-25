@@ -39,9 +39,9 @@ Each node represents a commit, and you can move through them to inspect details 
 
 - [X] Branch visualization
 - [X] More wildlife/environment
-- [ ] Save plant snapshots as images
-- [ ] Custom themes
-- [ ] Display repo contributors as birds
+- [X] Save plant snapshots as images
+- [X] Custom themes
+- [X] Display repo contributors as birds
 ---
 
 ## Contributing
